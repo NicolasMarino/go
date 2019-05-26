@@ -1,11 +1,15 @@
 package models
 
-import (
+// Represents the order
+type Response struct {
+	Datos []Data `json:"data"`
+}
+/*import (
 	"time"
 )
 
 // Represents the order
-type Order struct {
+type Data struct {
 	ID        int64     `json:"id"`
 	State     bool	   `json:"state" validate:"required"`
 	Pickup   string    `json:"pickup" validate:"required"`
@@ -19,4 +23,7 @@ type Order struct {
 	Shipping    string    `json:"shipping"`
 	Subtotal    string    `json:"subtotal"`
 	Items []Item  `json:"items"`
-}
+}*/
+
+
+
