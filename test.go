@@ -29,7 +29,6 @@ func main() {
 
 	var responseObject models.Orders
 	json.Unmarshal(responseData, &responseObject)
-	fmt.Println("hola")
 	fmt.Println(len(responseObject.Datos))
 
 	for i := 0; i < len(responseObject.Datos); i++ {
@@ -53,15 +52,27 @@ func main() {
 		}*/
 		Data := responseObject.Datos[i]
 		fmt.Println(Data)
-		datos := models.RestoSoft{
+		var datos models.RestoSoft
+		datos.Date = responseObject.Datos[i].RegisteredDate
+		datos.Notes = responseObject.Datos[i].Notes
+		datos.Total = responseObject.Datos[i].Total
+		datos.Items = responseObject.Datos[i].Items
+		datos.Customer = responseObject.Datos[i].Customer
+		datos.Customer.Adress.Coordinates = responseObject.Datos[i].Address.Coordinates
+		datos.Business.Name = responseObject.Datos[i].Restaurant.Name
+
+		/*datos := models.RestoSoft{
 			Date:     responseObject.Datos[i].RegisteredDate,
 			Notes:    responseObject.Datos[i].Notes,
 			Total:    responseObject.Datos[i].Total,
 			Items:    responseObject.Datos[i].Items,
 			Customer: responseObject.Datos[i].Customer,
-			Business: responseObject.Datos[i].Restaurant,
-		}
+			Business: models.Restaurant{Name: },
+		}*/
+
 		file, _ := json.MarshalIndent(datos, "", " ")
+
+		//file, _ := json.Marshal(datos)
 		fmt.Print(string(file))
 		fmt.Println("-----")
 	}
