@@ -1,9 +1,9 @@
 package models
 
 type Customer struct {
-	ID       int64  `json:"id"`
-	Name     string `json:"name"`
-	LastName string `json:"lastname"`
-	Email    string `json:"email"`
+	ID       int64  `json:"id,omitempty"`
+	Name     string `json:"name,omitempty"`
+	LastName string `json:"lastname,omitempty"`
+	Email    string `json:"email,omitempty"`
 	Adress   Address
 }

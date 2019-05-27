@@ -45,11 +45,11 @@ func main() {
 		fmt.Println(responseObject.Datos[i].Shipping)
 		fmt.Println(responseObject.Datos[i].Subtotal)
 		fmt.Print("items:")
-		//opciones := models.Option{}
+		//opciones := models.Option{}*/
 		for j := 0; j < len(responseObject.Datos[i].Items); j++ {
-			//opciones += responseObject.Datos[i].Items[j].Options
-			//fmt.Println()
-		}*/
+			responseObject.Datos[i].Items[j].ID = 0
+			responseObject.Datos[i].Items[j].Options = []models.Option{}
+		}
 		Data := responseObject.Datos[i]
 		fmt.Println(Data)
 		var datos models.RestoSoft
@@ -57,7 +57,7 @@ func main() {
 		datos.Notes = responseObject.Datos[i].Notes
 		datos.Total = responseObject.Datos[i].Total
 		datos.Items = responseObject.Datos[i].Items
-		datos.Customer = responseObject.Datos[i].Customer
+		datos.Customer.Name = responseObject.Datos[i].Customer.Name
 		datos.Customer.Adress.Coordinates = responseObject.Datos[i].Address.Coordinates
 		datos.Business.Name = responseObject.Datos[i].Restaurant.Name
 

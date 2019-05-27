@@ -1,7 +1,7 @@
 package models
 
 type ItemsRs struct {
-	Name     string `json:"name"`
-	Quantity string `json:"quantity"`
-	Price    string `json:"price"`
+	Name     string  `json:"name"`
+	Quantity float32 `json:"quantity"`
+	Price    float32 `json:"total"`
 }
