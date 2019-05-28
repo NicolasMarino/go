@@ -30,6 +30,8 @@ func main() {
 	var responseObject models.Orders
 	json.Unmarshal(responseData, &responseObject)
 	fmt.Println(len(responseObject.Datos))
+	//fmt.Println(responseObject.Datos)
+	var datos models.RestoSoft
 
 	for i := 0; i < len(responseObject.Datos); i++ {
 		/*fmt.Println(responseObject.Datos[i].ID)
@@ -44,37 +46,44 @@ func main() {
 		fmt.Println(responseObject.Datos[i].Total)
 		fmt.Println(responseObject.Datos[i].Shipping)
 		fmt.Println(responseObject.Datos[i].Subtotal)
-		fmt.Print("items:")
+		fmt.Print("items:")*/
+
 		//opciones := models.Option{}*/
+
 		for j := 0; j < len(responseObject.Datos[i].Items); j++ {
 			responseObject.Datos[i].Items[j].ID = 0
 			responseObject.Datos[i].Items[j].Options = []models.Option{}
 		}
+
 		Data := responseObject.Datos[i]
-		fmt.Println(Data)
-		var datos models.RestoSoft
-		datos.Date = responseObject.Datos[i].RegisteredDate
-		datos.Notes = responseObject.Datos[i].Notes
-		datos.Total = responseObject.Datos[i].Total
-		datos.Items = responseObject.Datos[i].Items
-		datos.Customer.Name = responseObject.Datos[i].Customer.Name
-		datos.Customer.Adress.Coordinates = responseObject.Datos[i].Address.Coordinates
-		datos.Business.Name = responseObject.Datos[i].Restaurant.Name
+		datos.Date = Data.RegisteredDate
+		datos.Notes = Data.Notes
+		datos.Total = Data.Total
+		var datosRS []models.ItemsRs
 
-		/*datos := models.RestoSoft{
-			Date:     responseObject.Datos[i].RegisteredDate,
-			Notes:    responseObject.Datos[i].Notes,
-			Total:    responseObject.Datos[i].Total,
-			Items:    responseObject.Datos[i].Items,
-			Customer: responseObject.Datos[i].Customer,
-			Business: models.Restaurant{Name: },
+		for x := 0; x < len(Data.Items); x++ {
+			var nuevosRS models.ItemsRs
+			nuevosRS.Name = Data.Items[x].Name
+			nuevosRS.Price = Data.Items[x].Price
+			nuevosRS.Quantity = Data.Items[x].Quantity
+			datosRS = append(datosRS, nuevosRS)
+		}
+		//datos.Items = []models.ItemsRs{}
+		datos.Items = datosRS
+
+		datos.Customer.Name = Data.Customer.Name
+		datos.Customer.Adress.Coordinates = Data.Address.Coordinates
+		datos.Business.Name = Data.Restaurant.Name
+
+		/*for x := 0; x < len(Data.Items); x++ {
+			datos.Items[x].Name = Data.Items[i].Name
+			datos.Items[x].Quantity = Data.Items[i].Quantity
+			datos.Items[x].Price = Data.Items[i].Price
 		}*/
+		//fmt.Print(datos)
+		dataJson, _ := json.MarshalIndent(datos, "", " ")
 
-		file, _ := json.MarshalIndent(datos, "", " ")
+		fmt.Print(string(dataJson))
 
-		//file, _ := json.Marshal(datos)
-		fmt.Print(string(file))
-		fmt.Println("-----")
 	}
-
 }
