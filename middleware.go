@@ -105,13 +105,20 @@ func postXResto(order models.Data) {
 	//fmt.Println(order)
 	var orderXResto models.Order
 	Data := order
+
 	orderXResto.Customer.Name = Data.Customer.GetFullName()
+
 	orderXResto.Customer.Coordinates = Data.Address.Coordinates
-	orderXResto.Business.Name = Data.Restaurant.Name
+
+	//fmt.Print(Data.Restaurant.Name)
 	orderXResto.Status = Data.State
+
+	orderXResto.Business.Name = Data.Restaurant.Name
+
 	orderXResto.Date.Year = strings.Split(strings.Split(Data.RegisteredDate.String(), " ")[0], "-")[0]
 	orderXResto.Date.Month = strings.Split(strings.Split(Data.RegisteredDate.String(), " ")[0], "-")[1]
 	orderXResto.Date.Day = strings.Split(strings.Split(Data.RegisteredDate.String(), " ")[0], "-")[2]
+
 	orderXResto.Notes = Data.Notes
 	orderXResto.Total = Data.Subtotal
 
@@ -132,8 +139,8 @@ func postXResto(order models.Data) {
 
 	orderXResto.Items = datosXResto
 
-	dataXML, _ := xml.MarshalIndent(orderXResto, "", " ")
-	//fmt.Print(string(dataXML))
+	dataXML, _ := xml.MarshalIndent(orderXResto, "", "    ")
+	fmt.Print(string(dataXML))
 
 	url := "http://vmrdr.mocklab.io/xresto/v2/orders"
 
