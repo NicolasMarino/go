@@ -5,5 +5,5 @@ type Customer struct {
 	Name     string `json:"name,omitempty"`
 	LastName string `json:"lastname,omitempty"`
 	Email    string `json:"email,omitempty"`
-	Adress   Address
+	Location AddressRestoSoft
 }

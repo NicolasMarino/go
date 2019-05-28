@@ -1,13 +1,9 @@
 package models
 
-import (
-	"time"
-)
-
 type RestoSoft struct {
-	Date     time.Time `json:"date"`
-	Notes    string    `json:"notes"`
-	Total    float32   `json:"total"`
+	Date     string  `json:"date"`
+	Notes    string  `json:"notes"`
+	Total    float32 `json:"total"`
 	Items    []ItemsRs
 	Customer Customer
 	Business Restaurant

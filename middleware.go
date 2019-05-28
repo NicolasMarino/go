@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/nicolasmarino/api/models"
 )
@@ -44,53 +45,41 @@ func getOrdersPY() models.Orders {
 }
 
 func postRestoSoft(order models.Data) {
-	fmt.Println(order)
-	//fmt.Println(responseObject.Datos)
-	/*var datos models.RestoSoft
+	//Para ver cada orden
+	//fmt.Println(order) Para ver cada orden.
+	var restoSoftData models.RestoSoft
 
-	for i := 0; i < len(responseObject.Datos); i++ {
+	Data := order
 
-		if responseObject.Datos[i].Integration == "RestoSoft" {
-			//fmt.Println("es RestoSoft")
-		} else if responseObject.Datos[i].Integration == "XResto" {
-			//fmt.Println("es XResto")
-		}
-		for j := 0; j < len(responseObject.Datos[i].Items); j++ {
-			responseObject.Datos[i].Items[j].ID = 0
-			responseObject.Datos[i].Items[j].Options = []models.Option{}
-		}
+	restoSoftData.Date = strings.Split(Data.RegisteredDate.String(), " ")[0]
+	restoSoftData.Notes = Data.Notes
+	restoSoftData.Total = Data.Total
+	var datosRS []models.ItemsRs
 
-		Data := responseObject.Datos[i]
-		datos.Date = Data.RegisteredDate
-		datos.Notes = Data.Notes
-		datos.Total = Data.Total
-		var datosRS []models.ItemsRs
-
-		for x := 0; x < len(Data.Items); x++ {
-			var nuevosRS models.ItemsRs
-			nuevosRS.Name = Data.Items[x].Name
-			nuevosRS.Price = Data.Items[x].Price
-			nuevosRS.Quantity = Data.Items[x].Quantity
-			datosRS = append(datosRS, nuevosRS)
-		}
-		//datos.Items = []models.ItemsRs{}
-		datos.Items = datosRS
-
-		datos.Customer.Name = Data.Customer.Name
-		datos.Customer.Adress.Coordinates = Data.Address.Coordinates
-		datos.Business.Name = Data.Restaurant.Name
-
-		//fmt.Print(datos)
-
-		//dataJson, _ := json.MarshalIndent(datos, "", " ")
-
-		//fmt.Print(string(dataJson))
+	for x := 0; x < len(Data.Items); x++ {
+		var nuevosRS models.ItemsRs
+		nuevosRS.Name = Data.Items[x].Name
+		nuevosRS.Price = Data.Items[x].Price
+		nuevosRS.Quantity = Data.Items[x].Quantity
+		datosRS = append(datosRS, nuevosRS)
 	}
-	*/
+	restoSoftData.Items = datosRS
+
+	restoSoftData.Customer.Name = Data.Customer.Name
+	restoSoftData.Customer.Location.Latitude = strings.Split(Data.Address.Coordinates, ",")[0]
+	restoSoftData.Customer.Location.Longitude = strings.Split(Data.Address.Coordinates, ",")[1]
+	restoSoftData.Business.Name = Data.Restaurant.Name
+
+	restoSoftDataJSON, _ := json.MarshalIndent(restoSoftData, "", " ")
+
+	fmt.Print(string(restoSoftDataJSON))
+
 }
 
 func postXResto(order models.Data) {
-	fmt.Println(order)
+	//Para ver cada orden
+	//fmt.Println(order)
+
 	//fmt.Println(responseObject.Datos)
 	/*var datos models.RestoSoft
 
