@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -72,27 +73,17 @@ func postRestoSoft(order models.Data) {
 			datosRS = append(datosRS, nuevosRS)
 		}
 	}
-	restoSoftData.Items = datosRS
 
+	restoSoftData.Items = datosRS
 	restoSoftData.Customer.Name = Data.Customer.GetFullName()
 	restoSoftData.Customer.Location.Longitude = strings.Split(Data.Address.Coordinates, ",")[0]
 	restoSoftData.Customer.Location.Latitude = strings.Split(Data.Address.Coordinates, ",")[1]
 	restoSoftData.Business.Name = Data.Restaurant.Name
 
-	//nuevoS := structToLowerFirstMap(restoSoftData)
-	//fmt.Print(nuevoS)
-
-	//nuevoS, err := json.Marshal(nuevoS)
-
 	restoSoftDataJSON, _ := json.MarshalIndent(restoSoftData, "", "    ")
-	//restoSoftDataJSONe, _ := json.Marshal(restoSoftData)
-
-	fmt.Print(string(restoSoftDataJSON))
 
 	url := "http://vmrdr.mocklab.io/restosoft/v1/orders"
-	fmt.Println("URL:>", url)
 
-	//	var jsonStr = []byte(`{"title":"Buy cheese and bread for breakfast."}`)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(restoSoftDataJSON))
 	req.Header.Set("Authorization", "restosoft-test-developer")
 	req.Header.Set("Content-Type", "application/json")
@@ -104,8 +95,6 @@ func postRestoSoft(order models.Data) {
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
 	fmt.Println("response Body:", string(body))
 
@@ -114,49 +103,49 @@ func postRestoSoft(order models.Data) {
 func postXResto(order models.Data) {
 	//Para ver cada orden
 	//fmt.Println(order)
+	var orderXResto models.OrderXResto
+	Data := order
+	orderXResto.Customer.Name = Data.Customer.Name
+	orderXResto.Customer.LastName = Data.Customer.LastName
+	orderXResto.Customer.Location.Coordinates = Data.Address.Coordinates
+	orderXResto.Business.Name = Data.Restaurant.Name
+	orderXResto.Status = Data.State
 
-	//fmt.Println(responseObject.Datos)
-	/*var datos models.RestoSoft
+	orderXResto.Date.Year = strings.Split(strings.Split(Data.RegisteredDate.String(), " ")[0], "-")[0]
+	orderXResto.Date.Month = strings.Split(strings.Split(Data.RegisteredDate.String(), " ")[0], "-")[1]
+	orderXResto.Date.Day = strings.Split(strings.Split(Data.RegisteredDate.String(), " ")[0], "-")[2]
+	orderXResto.Notes = Data.Notes
+	orderXResto.Total = Data.Subtotal
 
-	for i := 0; i < len(responseObject.Datos); i++ {
-
-		if responseObject.Datos[i].Integration == "RestoSoft" {
-			//fmt.Println("es RestoSoft")
-		} else if responseObject.Datos[i].Integration == "XResto" {
-			//fmt.Println("es XResto")
-		}
-		for j := 0; j < len(responseObject.Datos[i].Items); j++ {
-			responseObject.Datos[i].Items[j].ID = 0
-			responseObject.Datos[i].Items[j].Options = []models.Option{}
-		}
-
-		Data := responseObject.Datos[i]
-		datos.Date = Data.RegisteredDate
-		datos.Notes = Data.Notes
-		datos.Total = Data.Total
-		var datosRS []models.ItemsRs
-
-		for x := 0; x < len(Data.Items); x++ {
-			var nuevosRS models.ItemsRs
-			nuevosRS.Name = Data.Items[x].Name
-			nuevosRS.Price = Data.Items[x].Price
-			nuevosRS.Quantity = Data.Items[x].Quantity
-			datosRS = append(datosRS, nuevosRS)
-		}
-		//datos.Items = []models.ItemsRs{}
-		datos.Items = datosRS
-
-		datos.Customer.Name = Data.Customer.Name
-		datos.Customer.Adress.Coordinates = Data.Address.Coordinates
-		datos.Business.Name = Data.Restaurant.Name
-
-		//fmt.Print(datos)
-
-		//dataJson, _ := json.MarshalIndent(datos, "", " ")
-
-		//fmt.Print(string(dataJson))
+	var datosXResto []models.ItemsRestoSoft
+	for x := 0; x < len(Data.Items); x++ {
+		var nuevosRS models.ItemsRestoSoft
+		nuevosRS.Name = Data.Items[x].Name
+		nuevosRS.Price = Data.Items[x].Price
+		nuevosRS.Quantity = Data.Items[x].Quantity
+		datosXResto = append(datosXResto, nuevosRS)
 	}
-	*/
+	orderXResto.Items = datosXResto
+
+	dataXML, _ := xml.MarshalIndent(orderXResto, "", " ")
+	//fmt.Print(string(dataXML))
+
+	url := "http://vmrdr.mocklab.io/xresto/v2/orders"
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(dataXML))
+	req.Header.Set("Authorization", "xresto-test-developer")
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(body))
+
 }
 
 func structToLowerFirstMap(in interface{}) map[string]interface{} {
