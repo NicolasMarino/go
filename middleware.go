@@ -50,14 +50,13 @@ func postRestoSoft(order models.Data) {
 	var restoSoftData models.RestoSoft
 
 	Data := order
-
 	restoSoftData.Date = strings.Split(Data.RegisteredDate.String(), " ")[0]
 	restoSoftData.Notes = Data.Notes
 	restoSoftData.Total = Data.Total
-	var datosRS []models.ItemsRs
+	var datosRS []models.ItemsRestoSoft
 
 	for x := 0; x < len(Data.Items); x++ {
-		var nuevosRS models.ItemsRs
+		var nuevosRS models.ItemsRestoSoft
 		nuevosRS.Name = Data.Items[x].Name
 		nuevosRS.Price = Data.Items[x].Price
 		nuevosRS.Quantity = Data.Items[x].Quantity
@@ -70,7 +69,7 @@ func postRestoSoft(order models.Data) {
 	restoSoftData.Customer.Location.Longitude = strings.Split(Data.Address.Coordinates, ",")[1]
 	restoSoftData.Business.Name = Data.Restaurant.Name
 
-	restoSoftDataJSON, _ := json.MarshalIndent(restoSoftData, "", " ")
+	restoSoftDataJSON, _ := json.MarshalIndent(restoSoftData, "", "    ")
 
 	fmt.Print(string(restoSoftDataJSON))
 

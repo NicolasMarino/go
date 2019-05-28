@@ -1,6 +1,6 @@
 package models
 
-type ItemsRs struct {
+type ItemsRestoSoft struct {
 	Name     string  `json:"name"`
 	Quantity float32 `json:"quantity"`
 	Price    float32 `json:"price"`
