@@ -103,14 +103,12 @@ func postRestoSoft(order models.Data) {
 func postXResto(order models.Data) {
 	//Para ver cada orden
 	//fmt.Println(order)
-	var orderXResto models.OrderXResto
+	var orderXResto models.Order
 	Data := order
-	orderXResto.Customer.Name = Data.Customer.Name
-	orderXResto.Customer.LastName = Data.Customer.LastName
-	orderXResto.Customer.Location.Coordinates = Data.Address.Coordinates
+	orderXResto.Customer.Name = Data.Customer.GetFullName()
+	orderXResto.Customer.Coordinates = Data.Address.Coordinates
 	orderXResto.Business.Name = Data.Restaurant.Name
 	orderXResto.Status = Data.State
-
 	orderXResto.Date.Year = strings.Split(strings.Split(Data.RegisteredDate.String(), " ")[0], "-")[0]
 	orderXResto.Date.Month = strings.Split(strings.Split(Data.RegisteredDate.String(), " ")[0], "-")[1]
 	orderXResto.Date.Day = strings.Split(strings.Split(Data.RegisteredDate.String(), " ")[0], "-")[2]
@@ -124,7 +122,14 @@ func postXResto(order models.Data) {
 		nuevosRS.Price = Data.Items[x].Price
 		nuevosRS.Quantity = Data.Items[x].Quantity
 		datosXResto = append(datosXResto, nuevosRS)
+		for xi := 0; xi < len(Data.Items[x].Options); xi++ {
+			nuevosRS.Name = Data.Items[x].Options[xi].Name
+			nuevosRS.Quantity = Data.Items[x].Options[xi].Quantity
+			nuevosRS.Price = 0
+			datosXResto = append(datosXResto, nuevosRS)
+		}
 	}
+
 	orderXResto.Items = datosXResto
 
 	dataXML, _ := xml.MarshalIndent(orderXResto, "", " ")

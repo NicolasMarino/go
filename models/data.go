@@ -6,7 +6,7 @@ import (
 
 type Data struct {
 	ID             int64      `json:"id"`
-	State          string     `json:"state"`
+	State          string     `json:"state" xml:"state"`
 	Pickup         bool       `json:"pickup"`
 	Notes          string     `json:"notes"`
 	RegisteredDate time.Time  `json:"registeredDate"`
