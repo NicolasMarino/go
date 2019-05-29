@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/nicolasmarino/api/models"
@@ -18,14 +19,31 @@ func main() {
 	datos := getOrdersPY()
 
 	for i := 0; i < len(datos.Datos); i++ {
+
 		if datos.Datos[i].Integration == "RestoSoft" {
-			postRestoSoft(datos.Datos[i])
-			fmt.Println("---------")
+			logs := postRestoSoft(datos.Datos[i])
+			saveLog(logs)
 		} else if datos.Datos[i].Integration == "XResto" {
-			postXResto(datos.Datos[i])
+			logs := postXResto(datos.Datos[i])
+			saveLog(logs)
 		}
+
 	}
 
+}
+
+func saveLog(response string) {
+	f, err := os.OpenFile("ordenesEnviadas.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = f.Write([]byte(string(response)))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	f.Close()
 }
 
 func getOrdersPY() models.Orders {
@@ -46,7 +64,7 @@ func getOrdersPY() models.Orders {
 	return responseObject
 }
 
-func postRestoSoft(order models.Data) {
+func postRestoSoft(order models.Data) string {
 	//Para ver cada orden
 	//fmt.Println(order) Para ver cada orden.
 	var restoSoftData models.RestoSoft
@@ -93,11 +111,15 @@ func postRestoSoft(order models.Data) {
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+	//fmt.Println("response Status:", resp.Status)
+	//fmt.Println("response Headers:", resp.Header)
+	//fmt.Println(string(body))
+	responseString := "En Pedidos Ya: " + strconv.FormatInt(order.ID, 10) + ", en RestoSoft: " + string(body) + ", estado:" + string(resp.Status) + "." + "\n"
 
+	return responseString
 }
 
-func postXResto(order models.Data) {
+func postXResto(order models.Data) string {
 	//Para ver cada orden
 	//fmt.Println(order)
 	var orderXResto models.Order
@@ -144,6 +166,10 @@ func postXResto(order models.Data) {
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+	//fmt.Println("response Status:", resp.Status)
+	//fmt.Println("response Headers:", resp.Header)
+	//fmt.Println(string(body))
+	responseString := "En Pedidos Ya: " + strconv.FormatInt(order.ID, 10) + ", en XResto: " + string(body) + ", estado:" + string(resp.Status) + "." + "\n"
 
+	return responseString
 }
