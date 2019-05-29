@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/nicolasmarino/api/models"
+	"github.com/nicolasmarino/middleware/models"
 )
 
 func main() {
@@ -33,11 +33,12 @@ func main() {
 }
 
 func saveLog(response string) {
+	//Si no existe el archivo lo crea, sino le hace un append.
 	f, err := os.OpenFile("ordenesEnviadas.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	//Escribimos el archivo.
 	_, err = f.Write([]byte(string(response)))
 	if err != nil {
 		log.Fatal(err)
@@ -47,6 +48,7 @@ func saveLog(response string) {
 }
 
 func getOrdersPY() models.Orders {
+	//Obtenemos todas las ordenes pendientes de pedidos ya
 	response, err := http.Get("http://vmrdr.mocklab.io/pedidosya/v1/orders")
 	if err != nil {
 		fmt.Print(err.Error())
@@ -60,15 +62,15 @@ func getOrdersPY() models.Orders {
 
 	var responseObject models.Orders
 	json.Unmarshal(responseData, &responseObject)
-
+	//Devolvemos la data en un json unmarshalleado para poder acceder a sus propiedades
 	return responseObject
 }
 
 func postRestoSoft(order models.Data) string {
 	//Para ver cada orden
-	//fmt.Println(order) Para ver cada orden.
+	//fmt.Println(order)
 	var restoSoftData models.RestoSoft
-
+	//Seteamos el objeto de models.Data el cual vamos a usar para armar el nuevo json
 	Data := order
 	restoSoftData.Date = strings.Split(Data.RegisteredDate.String(), " ")[0]
 	restoSoftData.Notes = Data.Notes
@@ -96,25 +98,24 @@ func postRestoSoft(order models.Data) string {
 	restoSoftData.Business.Name = Data.Restaurant.Name
 
 	restoSoftDataJSON, _ := json.MarshalIndent(restoSoftData, "", "    ")
-
+	//Url de restosoft
 	url := "http://vmrdr.mocklab.io/restosoft/v1/orders"
 
+	//Seteamos los datos que vamos a mandar en el post
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(restoSoftDataJSON))
 	req.Header.Set("Authorization", "restosoft-test-developer")
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
-	resp, err := client.Do(req)
+	//Hacemos la request y nos quedamos con el response
+	response, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
-	defer resp.Body.Close()
-
-	body, _ := ioutil.ReadAll(resp.Body)
-	//fmt.Println("response Status:", resp.Status)
-	//fmt.Println("response Headers:", resp.Header)
-	//fmt.Println(string(body))
-	responseString := "En Pedidos Ya: " + strconv.FormatInt(order.ID, 10) + ", en RestoSoft: " + string(body) + ", estado:" + string(resp.Status) + "." + "\n"
+	defer response.Body.Close()
+	//Leemos los datos que trae en el body el response
+	body, _ := ioutil.ReadAll(response.Body)
+	responseString := "En Pedidos Ya: " + strconv.FormatInt(order.ID, 10) + ", en RestoSoft: " + string(body) + ", estado:" + string(response.Status) + "." + "\n"
 
 	return responseString
 }
@@ -123,6 +124,7 @@ func postXResto(order models.Data) string {
 	//Para ver cada orden
 	//fmt.Println(order)
 	var orderXResto models.Order
+	//Seteamos el objeto de models.Data el cual vamos a usar para armar el nuevo xml
 	Data := order
 
 	orderXResto.Customer.Name = Data.Customer.GetFullName()
@@ -152,24 +154,25 @@ func postXResto(order models.Data) string {
 
 	dataXML, _ := xml.MarshalIndent(orderXResto, "", "  ")
 
+	//Url de xresto
 	url := "http://vmrdr.mocklab.io/xresto/v2/orders"
 
+	//Seteamos los datos que vamos a mandar en el post
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(dataXML))
 	req.Header.Set("Authorization", "xresto-test-developer")
 	req.Header.Set("Content-Type", "text/xml")
 
 	client := &http.Client{}
-	resp, err := client.Do(req)
+	//Hacemos la request y nos quedamos con el response
+	response, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
-	defer resp.Body.Close()
+	defer response.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	//fmt.Println("response Status:", resp.Status)
-	//fmt.Println("response Headers:", resp.Header)
-	//fmt.Println(string(body))
-	responseString := "En Pedidos Ya: " + strconv.FormatInt(order.ID, 10) + ", en XResto: " + string(body) + ", estado:" + string(resp.Status) + "." + "\n"
+	//Leemos los datos que trae en el body el response
+	body, _ := ioutil.ReadAll(response.Body)
+	responseString := "En Pedidos Ya: " + strconv.FormatInt(order.ID, 10) + ", en XResto: " + string(body) + ", estado:" + string(response.Status) + "." + "\n"
 
 	return responseString
 }
