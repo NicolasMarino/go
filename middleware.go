@@ -9,10 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"reflect"
 	"strings"
-	"unicode"
-	"unicode/utf8"
 
 	"github.com/nicolasmarino/api/models"
 )
@@ -96,7 +93,7 @@ func postRestoSoft(order models.Data) {
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
+	fmt.Println(string(body))
 
 }
 
@@ -107,21 +104,14 @@ func postXResto(order models.Data) {
 	Data := order
 
 	orderXResto.Customer.Name = Data.Customer.GetFullName()
-
 	orderXResto.Customer.Coordinates = Data.Address.Coordinates
-
-	//fmt.Print(Data.Restaurant.Name)
 	orderXResto.Status = Data.State
-
 	orderXResto.Business.Name = Data.Restaurant.Name
-
 	orderXResto.Date.Year = strings.Split(strings.Split(Data.RegisteredDate.String(), " ")[0], "-")[0]
 	orderXResto.Date.Month = strings.Split(strings.Split(Data.RegisteredDate.String(), " ")[0], "-")[1]
 	orderXResto.Date.Day = strings.Split(strings.Split(Data.RegisteredDate.String(), " ")[0], "-")[2]
-
 	orderXResto.Notes = Data.Notes
 	orderXResto.Total = Data.Subtotal
-
 	var datosXResto []models.ItemsRestoSoft
 	for x := 0; x < len(Data.Items); x++ {
 		var nuevosRS models.ItemsRestoSoft
@@ -136,17 +126,15 @@ func postXResto(order models.Data) {
 			datosXResto = append(datosXResto, nuevosRS)
 		}
 	}
-
 	orderXResto.Items = datosXResto
 
-	dataXML, _ := xml.MarshalIndent(orderXResto, "", "    ")
-	fmt.Print(string(dataXML))
+	dataXML, _ := xml.MarshalIndent(orderXResto, "", "  ")
 
 	url := "http://vmrdr.mocklab.io/xresto/v2/orders"
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(dataXML))
 	req.Header.Set("Authorization", "xresto-test-developer")
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "text/xml")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -156,59 +144,6 @@ func postXResto(order models.Data) {
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
+	fmt.Println(string(body))
 
 }
-
-func structToLowerFirstMap(in interface{}) map[string]interface{} {
-	v := reflect.ValueOf(in)
-	vType := v.Type()
-
-	result := make(map[string]interface{}, v.NumField())
-
-	for i := 0; i < v.NumField(); i++ {
-		name := vType.Field(i).Name
-		result[lowerFirst(name)] = v.Field(i).Interface()
-	}
-
-	return result
-
-}
-
-func lowerFirst(s string) string {
-	if s == "" {
-		return ""
-	}
-	r, n := utf8.DecodeRuneInString(s)
-	return string(unicode.ToLower(r)) + s[n:]
-}
-
-/*
-func structToMap(i interface{}) (values url.Values) {
-	values = url.Values{}
-	iVal := reflect.ValueOf(i).Elem()
-	typ := iVal.Type()
-	for i := 0; i < iVal.NumField(); i++ {
-		f := iVal.Field(i)
-		// You ca use tags here...
-		// tag := typ.Field(i).Tag.Get("tagname")
-		// Convert each type into a string for the url.Values string map
-		var v string
-		switch f.Interface().(type) {
-		case int, int8, int16, int32, int64:
-			v = strconv.FormatInt(f.Int(), 10)
-		case uint, uint8, uint16, uint32, uint64:
-			v = strconv.FormatUint(f.Uint(), 10)
-		case float32:
-			v = strconv.FormatFloat(f.Float(), 'f', 4, 32)
-		case float64:
-			v = strconv.FormatFloat(f.Float(), 'f', 4, 64)
-		case []byte:
-			v = string(f.Bytes())
-		case string:
-			v = f.String()
-		}
-		values.Set(typ.Field(i).Name, v)
-	}
-	return
-}*/
